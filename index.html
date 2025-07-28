@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Neon Breaker - Telegram Mini App</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <div id="start-screen" class="screen active">
+            <div class="game-title">
+                <h1>NEON BREAKER</h1>
+                <div class="neon-subtitle">ULTIMATE EDITION</div>
+            </div>
+            <button class="play-button" onclick="game.startGame()">
+                <span class="button-text">PLAY</span>
+                <div class="button-glow"></div>
+            </button>
+            <div class="high-score">HIGH SCORE: <span id="high-score">0</span></div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="score-display">
+                    <div class="label">SCORE</div>
+                    <div id="score" class="value">0</div>
+                </div>
+                <div class="level-display">
+                    <div class="label">LEVEL</div>
+                    <div id="level" class="value">1</div>
+                </div>
+                <div class="lives-display">
+                    <div class="label">LIVES</div>
+                    <div id="lives" class="value">
+                        <span class="life-icon">❤️</span>
+                        <span class="life-icon">❤️</span>
+                        <span class="life-icon">❤️</span>
+                    </div>
+                </div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div id="combo-display" class="combo-hidden">
+                <div class="combo-text">COMBO x<span id="combo-value">1</span></div>
+            </div>
+            <div id="active-powerups" class="active-powerups-container"></div>
+            <div id="powerup-notification" class="powerup-notification hidden"></div>
+        </div>
+
+        <div id="game-over-screen" class="screen">
+            <div class="game-over-content">
+                <h2 class="game-over-title">GAME OVER</h2>
+                <div class="final-score">
+                    <div class="label">FINAL SCORE</div>
+                    <div id="final-score" class="value">0</div>
+                </div>
+                <div class="game-over-buttons">
+                    <button class="continue-button" onclick="game.buyLives()">
+                        <span class="stars-icon">⭐</span> BUY 3 LIVES
+                        <div class="button-glow"></div>
+                    </button>
+                    <button class="restart-button" onclick="game.restart()">
+                        RESTART
+                        <div class="button-glow"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="pause-overlay" class="overlay hidden">
+            <div class="pause-content">
+                <h2>PAUSED</h2>
+                <button class="resume-button" onclick="game.resume()">RESUME</button>
+            </div>
+        </div>
+
+        <div id="level-complete-overlay" class="overlay hidden">
+            <div class="level-complete-content">
+                <h2 class="level-complete-title">LEVEL COMPLETE!</h2>
+                <div class="level-stats">
+                    <div class="stat-row">
+                        <span>Accuracy:</span>
+                        <span id="accuracy">100%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Time Bonus:</span>
+                        <span id="time-bonus">+500</span>
+                    </div>
+                </div>
+                <button class="next-level-button" onclick="game.nextLevel()">
+                    NEXT LEVEL
+                    <div class="button-glow"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="particle-system.js"></script>
+    <script src="sound-manager.js"></script>
+    <script src="levels.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
