@@ -240,8 +240,22 @@ class Game {
     init() {
         this.soundManager.init();
         this.updateHighScore();
-        window.Telegram?.WebApp?.ready();
-        window.Telegram?.WebApp?.expand();
+        
+        // Initialize Telegram WebApp
+        if (window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            
+            // Set theme colors
+            tg.setHeaderColor('#1a1a2e');
+            tg.setBackgroundColor('#0a0a0a');
+            
+            // Enable haptic feedback if available
+            if (tg.HapticFeedback) {
+                this.hapticFeedback = tg.HapticFeedback;
+            }
+        }
     }
 
     setupCanvas() {
@@ -836,56 +850,66 @@ class Game {
     buyLives() {
         // Telegram Stars payment integration
         if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.showInvoice({
-                title: 'Extra Lives',
-                description: 'Get 3 extra lives to continue playing!',
-                payload: 'extra_lives',
-                currency: 'XTR',
-                prices: [{ label: '3 Lives', amount: 1 }],
-                photo_url: null
-            }, (status) => {
-                if (status === 'paid') {
-                    this.lives = 3;
-                    this.state = 'playing';
-                    this.ballAttached = true;
-                    this.showScreen('game-screen');
+            const tg = window.Telegram.WebApp;
+            
+            // Show confirmation dialog first
+            tg.showConfirm('Purchase 3 extra lives for 1 Telegram Star?', (confirmed) => {
+                if (confirmed) {
+                    // In a real implementation, you would:
+                    // 1. Send a request to your bot backend to create an invoice
+                    // 2. Use tg.openInvoice() with the generated invoice URL
                     
-                    // Reset ball attached to paddle
-                    this.paddle.x = this.canvas.width / 2;
-                    const ball = new Ball(
-                        this.paddle.x,
-                        this.paddle.y - this.paddle.height / 2 - 8 - 5,
-                        8,
-                        LEVELS[this.level].ballSpeed
-                    );
-                    ball.vx = 0;
-                    ball.vy = 0;
-                    this.balls.push(ball);
+                    // For now, simulate the payment process
+                    tg.showAlert('Processing payment...', () => {
+                        // Simulate successful payment
+                        this.handleSuccessfulPurchase();
+                    });
                     
-                    this.gameLoop();
+                    // Send data to bot (for real implementation)
+                    tg.sendData(JSON.stringify({
+                        action: 'buy_lives',
+                        lives: 3,
+                        price: 1,
+                        user_id: tg.initDataUnsafe?.user?.id
+                    }));
                 }
             });
         } else {
-            // Fallback for testing
-            alert('Telegram Stars payment would be triggered here');
-            this.lives = 3;
-            this.state = 'playing';
-            this.ballAttached = true;
-            this.showScreen('game-screen');
-            
-            this.paddle.x = this.canvas.width / 2;
-            const ball = new Ball(
-                this.paddle.x,
-                this.paddle.y - this.paddle.height / 2 - 8 - 5,
-                8,
-                LEVELS[this.level].ballSpeed
-            );
-            ball.vx = 0;
-            ball.vy = 0;
-            this.balls.push(ball);
-            
-            this.gameLoop();
+            // Fallback for browser testing
+            if (confirm('Purchase 3 extra lives? (This would cost 1 Telegram Star in the real app)')) {
+                this.handleSuccessfulPurchase();
+            }
         }
+    }
+    
+    handleSuccessfulPurchase() {
+        this.lives = 3;
+        this.state = 'playing';
+        this.ballAttached = true;
+        this.showScreen('game-screen');
+        
+        // Reset ball attached to paddle
+        this.paddle.x = this.canvas.width / 2;
+        const ball = new Ball(
+            this.paddle.x,
+            this.paddle.y - this.paddle.height / 2 - 8 - 5,
+            8,
+            LEVELS[this.level].ballSpeed
+        );
+        ball.vx = 0;
+        ball.vy = 0;
+        this.balls.push(ball);
+        
+        // Show success message
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showPopup({
+                title: 'Purchase Successful!',
+                message: 'You got 3 extra lives! Good luck!',
+                buttons: [{type: 'ok'}]
+            });
+        }
+        
+        this.gameLoop();
     }
 
     showScreen(screenId) {
